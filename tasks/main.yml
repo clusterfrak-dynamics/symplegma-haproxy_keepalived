@@ -1,0 +1,31 @@
+- name: HAproxy/Keepalived | Install specific distro packages
+  apt:
+    name: "{{ distro_packages }}"
+    state: present
+    update_cache: yes
+
+- name: HAproxy/Keepalived | Drop keepalived config
+  template:
+    src: keepalived.conf.j2
+    dest: /etc/keepalived/keepalived.conf
+  notify: restart keepalived
+
+- name: HAproxy/Keepalived | Drop HAproxy config
+  template:
+    src: haproxy.conf.j2
+    dest: /etc/haproxy/haproxy.cfg
+  notify: restart haproxy
+
+- meta: flush_handlers
+
+- name: HAproxy/Keepalived | Enable Keepalived unit
+  systemd:
+    name: keepalived.service
+    state: started
+    enabled: yes
+
+- name: Haproxy/Keepalived | Enable HAproxy unit
+  systemd:
+    name: haproxy.service
+    state: started
+    enabled: yes
